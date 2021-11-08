@@ -104,8 +104,14 @@ public class MainActivity<x> extends AppCompatActivity {
 
         });
         logInBtn.setOnClickListener(v -> {
+            if(counter < 3)
+                Toast.makeText(getApplicationContext(), "You need to grant all three permissions in order to go on ",
+                        Toast.LENGTH_SHORT).show();
+            else{
+                Intent intent = new Intent(MainActivity.this, HomePageActivity.class);
+                startActivity(intent);
 
-            Log.i("TAG", "listeners: " + counter);
+            }
         });
 
         resetBtn.setOnClickListener(v -> {
@@ -158,7 +164,7 @@ public class MainActivity<x> extends AppCompatActivity {
         switch (requestCode) {
             case 0:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    counter += x;
+                    updateUI(x);
                     x = 0;
                     grantedToast("Call-Phone", callBtn);
                 } else
@@ -168,7 +174,7 @@ public class MainActivity<x> extends AppCompatActivity {
 
             case 1:
                 if (grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                    counter += y;
+                    updateUI(y);
                     y = 0;
                     grantedToast("SMS", smsBtn);
                 } else
@@ -177,7 +183,7 @@ public class MainActivity<x> extends AppCompatActivity {
 
             case 2:
                 if (grantResults[2] == PackageManager.PERMISSION_GRANTED) {
-                    counter += z;
+                    updateUI(z);
                     z = 0;
                     grantedToast("Camera", camBtn);
                 } else
@@ -187,6 +193,11 @@ public class MainActivity<x> extends AppCompatActivity {
                 Log.i("TAG", "Default!");
                 break;
         }
+    }
+
+    private void updateUI(int variable) {
+        counter += variable;
+
     }
 
     @SuppressLint("ResourceAsColor")
