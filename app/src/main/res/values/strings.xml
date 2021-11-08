@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Avner Levy</string>
+    <string name="dialog_message">Are you sure you wish to reset all permissions? this action will enforce the application to go down.</string>
+    <string name="dialog_title">Reset Permissions?</string>
+</resources>
