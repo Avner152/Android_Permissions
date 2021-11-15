@@ -9,12 +9,11 @@
     android:background="@color/codereBackground"
     tools:context=".MainActivity">
 
-
         <Switch
         android:id="@+id/switch_flash_main"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-            android:text="Flashlight"
+            android:text="Flash OFF"
             android:enabled="false"
             android:textColor="@color/codereGreen"
             android:backgroundTint="@color/codereGreen"
@@ -28,12 +27,13 @@
         android:textSize="70dp"
         android:text="Avner's App"
         />
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/log_txt"
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Permissions Task"
+        android:textSize="28dp"
         android:textColor="@color/white"
-        android:text="Text you name here" />
+        />
 
     <LinearLayout
         android:layout_width="match_parent"

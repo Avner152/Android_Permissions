@@ -22,6 +22,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.os.BatteryManager;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ public class MainActivity<x> extends AppCompatActivity {
     private int counter = 0, x = 1, y = 1, z = 1;
     private float battery = 0;
     private int hasFlash = -1;
+    private boolean isTorchOn;
     private Camera camera;
     private CameraManager cameraManager;
     private Switch flashFlicker;
@@ -49,7 +51,7 @@ public class MainActivity<x> extends AppCompatActivity {
     private String[] permissionsList = new String[]{
             Manifest.permission.CALL_PHONE,
             Manifest.permission.SEND_SMS,
-            Manifest.permission.CAMERA
+            Manifest.permission.CAMERA,
     };
     private Button logInBtn, callBtn, smsBtn, camBtn, resetBtn;
 
@@ -77,8 +79,10 @@ public class MainActivity<x> extends AppCompatActivity {
         //       Get Battery Percentage:
         this.registerReceiver(this.mBatInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         //        Get Flash Data
-        hasFlash = checkFlashMode();
-        Log.i("TAG", "init: "+ hasFlash);
+        hasFlash  = checkSystemFlashFeature();
+        if(hasFlash == 0)
+            changeTorchMode();
+//        Log.i("TAG", "init: "+ hasFlash);
     }
 
     private void init() {
@@ -99,9 +103,47 @@ public class MainActivity<x> extends AppCompatActivity {
         else {
             ActivityCompat.requestPermissions(this, permissionsList, permissionNumber);
         }
+        if (counter == 3)
+            logInBtn.setBackgroundColor(this.getApplicationContext().getResources().getColor(R.color.codereGreen));
+
     }
 
-    public int checkFlashMode(){
+    private void changeTorchMode() {
+        flashFlicker.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                isTorchOn = isChecked;
+                try {
+                    isTorchOn = cameraManager.getCameraCharacteristics("0").get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+                String[] camID = {};
+                try {
+                    camID = cameraManager.getCameraIdList();
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
+                if(isChecked){
+//                    try {
+//                        cameraManager.setTorchMode(camID[0],false);
+//                    } catch (CameraAccessException e) {
+//                        e.printStackTrace();
+//                    }
+                    flashFlicker.setText("Flash ON");
+                } else{
+//                    try {
+//                        cameraManager.setTorchMode(camID[1],true);
+//                    } catch (CameraAccessException e) {
+//                        e.printStackTrace();
+//                    }
+                    flashFlicker.setText("Flash OFF");
+                }
+            }
+        });
+    }
+
+    public int checkSystemFlashFeature(){
         if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
             if(getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)){
             flashFlicker.setEnabled(true);
@@ -113,33 +155,6 @@ public class MainActivity<x> extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Your Device Doesn't Support Camera.", Toast.LENGTH_SHORT).show();
             return -1;
         }
-        flashFlicker.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String[] camID = {};
-                try {
-                    camID = cameraManager.getCameraIdList();
-                } catch (CameraAccessException e) {
-                    e.printStackTrace();
-                }
-
-                if(isChecked){
-                    try {
-                        cameraManager.setTorchMode(camID[0],false);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-                    }
-                    flashFlicker.setText("Flash ON");
-                } else{
-                    try {
-                        cameraManager.setTorchMode(camID[1],true);
-                    } catch (CameraAccessException e) {
-                        e.printStackTrace();
-                    }
-                    flashFlicker.setText("Flash OFF");
-                }
-            }
-        });
         return 0;
     }
 
@@ -173,6 +188,8 @@ public class MainActivity<x> extends AppCompatActivity {
             else if(battery < 50)
                 Toast.makeText(getApplicationContext(), "You don't Have enough battery to go on. please Plug-in or chage your phone ",
                         Toast.LENGTH_SHORT).show();
+            else if(!isTorchOn)
+                Toast.makeText(MainActivity.this, "You need to Turn On the Flashlight", Toast.LENGTH_SHORT).show();
             else{
                 Intent intent = new Intent(MainActivity.this, HomePageActivity.class);
                 startActivity(intent);
